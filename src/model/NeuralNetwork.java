@@ -8,7 +8,10 @@ public class NeuralNetwork extends Model{ //Single Hidden Layer
 
 	static int[] dimensions = {10, 5, 10};
 	
-	public static CostGrad forward_backward_prop(Matrix data, Matrix label, Matrix flattenedParams){
+	public void train(Matrix data, Matrix label){
+		CostGrad cost_grad = forward_backward_prop(data, label, super.params);
+	}
+	public CostGrad forward_backward_prop(Matrix data, Matrix label, Matrix flattenedParams){
 		
 		double cost = 0;
 		Matrix grad = new Matrix(flattenedParams.row_num, 1);

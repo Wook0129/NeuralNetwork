@@ -4,6 +4,7 @@ import ds.CostGrad;
 import ds.Matrix;
 import model.NeuralNetwork;
 import util.Activations;
+import util.StochasticGradientDescent;
 
 public class TestMain {
 	public static void main(String[] args) throws Exception{
@@ -28,9 +29,10 @@ public class TestMain {
 		Matrix data = new Matrix("R", 20, 10);
 		Matrix label = new Matrix("1",20,10);
 		Matrix flattenedParams = new Matrix("R", 55+60, 1);
-		CostGrad cg = NeuralNetwork.forward_backward_prop(data, label, flattenedParams);
-		System.out.println(cg.cost);
-		System.out.println(cg.grad);
+		NeuralNetwork nn = new NeuralNetwork();
+		nn.params = new Matrix("R", 55+60, 1); //Parameter Initialize
+		CostGrad cg = nn.forward_backward_prop(data, label, flattenedParams);
+		StochasticGradientDescent.optimize(nn, data, label, 0.01, 100000);
 	}
 }
 
