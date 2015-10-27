@@ -13,5 +13,6 @@ public abstract class Optimizer {
 		this.num_iter = num_iter;
 	}
 	public abstract Matrix optimize(Model model, Matrix data, Matrix label) throws Exception;
-
+	//Input : Model, Data, Label
+	//Output : Optimal Parameters
 }

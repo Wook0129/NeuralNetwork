@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+
 import ds.CostGrad;
 import ds.Matrix;
 import util.Activation.Sigmoid;
@@ -7,15 +9,16 @@ import util.Activation.Sigmoid;
 public class NeuralNetwork extends Model{ //Single Hidden Layer
 
 	private int[] dimensions = {10, 5, 10};
+	private ArrayList<Matrix> weight_Matrices = new ArrayList<Matrix>();
 	
-	//Init and Train parameters in flatten form
-	//After Training, Save it as Original Form(Dimension)
+	//TODO: Init and Train parameters in flatten form
+	//TODO: After Training, Save it as Original Form(Dimension)
 	
 	public NeuralNetwork(){
 		
 	}
 	
-	public void addLayer(int layerSize){ //Add Hidden Layers
+	public void layer_Setting(int[] dimensions){ //First dimension : Dim of Input, Last Dimension : Dim of Output
 		
 	}
 	
