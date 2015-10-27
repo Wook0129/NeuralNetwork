@@ -2,16 +2,38 @@ package model;
 
 import ds.CostGrad;
 import ds.Matrix;
-import util.Activations;
+import util.Activation.Sigmoid;
 
 public class NeuralNetwork extends Model{ //Single Hidden Layer
 
-	static int[] dimensions = {10, 5, 10};
+	private int[] dimensions = {10, 5, 10};
 	
-	public void train(Matrix data, Matrix label){
-		CostGrad cost_grad = forward_backward_prop(data, label, super.params);
+	//Init and Train parameters in flatten form
+	//After Training, Save it as Original Form(Dimension)
+	
+	public NeuralNetwork(){
+		
 	}
-	public CostGrad forward_backward_prop(Matrix data, Matrix label, Matrix flattenedParams){
+	
+	public void addLayer(int layerSize){ //Add Hidden Layers
+		
+	}
+	
+	public void init() throws Exception{ //Initialize Parameters
+		super.setParams(new Matrix("R", 55+60, 1));
+	}
+
+	public void train(Matrix data, Matrix label) throws Exception{
+		long start = System.currentTimeMillis();
+		Matrix optimal_params = super.getOptimizer().optimize(this, data, label);
+		super.setParams(optimal_params);
+		long elapsed = System.currentTimeMillis() - start;
+		System.out.println("Training "+this.getClass().getName()+" Finished...");
+		System.out.println("Elapsed Time : "+(elapsed/1000)+"s");
+	}
+	
+	@Override
+	public CostGrad cost_grad_at_givenParams(Matrix data, Matrix label, Matrix flattenedParams){
 		
 		double cost = 0;
 		Matrix grad = new Matrix(flattenedParams.row_num, 1);
@@ -44,8 +66,8 @@ public class NeuralNetwork extends Model{ //Single Hidden Layer
 		
 		try {
 		//Forward Propagation
-			Matrix h = Activations.sigmoid(data.multiply(w1).add(b1));
-			Matrix y = Activations.sigmoid(h.multiply(w2).add(b2));
+			Matrix h = new Sigmoid().activate(data.multiply(w1).add(b1));
+			Matrix y = new Sigmoid().activate(h.multiply(w2).add(b2));
 			cost = - label.element_multiply(y.log()).sum_all();
 		
 		//Backward Propagation

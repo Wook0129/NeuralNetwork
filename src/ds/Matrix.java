@@ -159,7 +159,12 @@ public class Matrix {
 		Matrix result = new Matrix(this.row_num, this.col_num);
 		for(int i = 0; i<row_num; i++)
 			for(int j = 0; j<col_num; j++)
-				result.values[i][j] = Math.exp(values[i][j]);
+				if (values[i][j] > 30)
+					result.values[i][j] = Math.exp(30.1);
+				else if (values[i][j] < -30)
+					result.values[i][j] = 0.00000000000000000000001;
+				else
+					result.values[i][j] = Math.exp(values[i][j]);
 		return result;
 	}
 	
