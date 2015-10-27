@@ -1,1 +1,1 @@
-# MLP, Word2Vec(CBOW, Skip-gram) Java Implementation
+# MLP, Word2Vec Java Implementation
