@@ -246,14 +246,18 @@ public class Matrix {
 				result.values[i][j] = iter.next();
 		return result;
 	}
-	public static Matrix concat(Matrix[] matrices) throws Exception{
+	public static Matrix concat(ArrayList<Matrix> matrices) throws Exception{
 		ArrayList<Double> temp = new ArrayList<Double>();
 		int axis = 0;
-		for(int i = 0; i<matrices.length; i++){
-			if(matrices[0].col_num == 1 && matrices[i].col_num == 1)
-				for(int j = 0; j<matrices[i].row_num; j++) temp.add(matrices[i].values[j][0]);
-			else if(matrices[0].row_num == 1 && matrices[i].row_num == 1){
-				for(int j = 0; j<matrices[i].col_num; j++) temp.add(matrices[i].values[0][j]);
+		Matrix first_Matrix = matrices.get(0);
+		Iterator<Matrix> matrix_iter = matrices.iterator();
+		
+		while(matrix_iter.hasNext()){
+			Matrix matrix = matrix_iter.next();
+			if(first_Matrix.col_num == 1 && matrix.col_num == 1)
+				for(int j = 0; j<matrix.row_num; j++) temp.add(matrix.values[j][0]);
+			else if(first_Matrix.row_num == 1 && matrix.row_num == 1){
+				for(int j = 0; j<matrix.col_num; j++) temp.add(matrix.values[0][j]);
 				axis = 1;
 			}
 			else throw new Exception("Infeasible Operation");
@@ -270,11 +274,18 @@ public class Matrix {
 			for(int i = 0; i<temp.size(); i++)
 				result.values[i][0] = iter.next();
 		}
-
 		return result;
 	}
-	public String dimesion(){
-		return row_num+","+col_num;
+	public int[] dim(){
+		return new int[]{row_num, col_num};
+	}
+	public Matrix flatten(){
+		Matrix result;
+		result = this.reshape(this.row_num * this.col_num, 1);
+		return result;
+	}
+	public int total_params_num(){
+		return row_num * col_num;
 	}
 	@Override
 	public String toString(){
