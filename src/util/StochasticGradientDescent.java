@@ -14,7 +14,7 @@ public class StochasticGradientDescent extends Optimizer{
 		
 		if(model == null) throw new Exception("No model to Optimize");
 		for(int iter = 0; iter<super.num_iter; iter++){
-			CostGrad cost_grad = model.cost_grad_at_givenParams(data, label, model.getParams());
+			CostGrad cost_grad = model.cost_grad_at_givenParams(model.getParams());
 			model.setParams(model.getParams().subtract(cost_grad.grad.multiply(learning_rate)));
 			if(iter % 1000 == 0) System.out.println("Cost : "+cost_grad.cost);
 		}
