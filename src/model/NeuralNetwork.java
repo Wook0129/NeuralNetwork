@@ -10,8 +10,8 @@ import util.Activation.Sigmoid;
 public class NeuralNetwork extends Model{ //Single Hidden Layer
 
 	private int[] dimensions;
-	private ArrayList<Matrix> weight_Matrices = new ArrayList<Matrix>();
-	private ArrayList<Matrix> biases = new ArrayList<Matrix>();
+	private HashMap<Integer, Matrix> weight_Matrices = new HashMap<Integer, Matrix>();
+	private HashMap<Integer, Matrix> biases = new HashMap<Integer, Matrix>();
 	
 	public NeuralNetwork(){
 	}
@@ -19,12 +19,12 @@ public class NeuralNetwork extends Model{ //Single Hidden Layer
 	public void layer_Setting(int[] dimensions) throws Exception{ //First dimension : Dim of Input, Last Dimension : Dim of Output
 		this.dimensions = dimensions;
 		int total_params_num = 0;
-		for(int i = 0; i<dimensions.length - 1; i++){ //Allocate Memory for Weight matrices and Biases according to dimensions
-			weight_Matrices.add(new Matrix(dimensions[i], dimensions[i+1]));
-			biases.add(new Matrix(1, dimensions[i+1])); //Row Vector
+		for(int i = 0; i<dimensions.length - 1; i++){ // Allocate Memory for Weight matrices and Biases according to dimensions
+			weight_Matrices.put((i+1),new Matrix(dimensions[i], dimensions[i+1]));// Index Start from 1
+			biases.put((i+1), new Matrix(1, dimensions[i+1])); // Index Start from 1, Row Vector
 			total_params_num += (dimensions[i] + 1) * dimensions[i+1];
 		}
-		super.setParams(new Matrix("R", total_params_num, 1));
+		super.setParams(new Matrix("R", total_params_num, 1)); //Random Initialization
 	}
 	
 	public void train(Matrix data, Matrix label) throws Exception{
@@ -39,24 +39,24 @@ public class NeuralNetwork extends Model{ //Single Hidden Layer
 		System.out.println("Elapsed Time : "+(elapsed/1000)+"s");
 	}
 	
-	private void unpack_Params(ArrayList<Matrix> weight_Matrices, ArrayList<Matrix> biases, Matrix flattenedParams){
+	private void unpack_Params(HashMap<Integer, Matrix> weight_Matrices, HashMap<Integer, Matrix> biases, Matrix flattenedParams){
 		//Unpack Flatten Parameters to Weight Matrices and Biases According to their Dimensions
 		int t = 0;
-		for(int i = 0; i<weight_Matrices.size(); i++){
+		for(int i = 1; i<=weight_Matrices.size(); i++){
 			//Unpacking Weight Matrix
 			Matrix w = weight_Matrices.get(i);
 			int[] dim = w.dim();
 			Matrix temp = new Matrix(w.total_params_num(), 1);
 			for(int j = t; j< t + w.total_params_num(); j++)
 				temp.values[j-t][0] = flattenedParams.values[j][0];
-			weight_Matrices.set(i, temp.reshape(dim[0], dim[1]));
+			weight_Matrices.put(i, temp.reshape(dim[0], dim[1]));
 			t += w.total_params_num();
 			
 			//Unpacking Bias
 			Matrix b = biases.get(i);
 			for(int j = t; j< t + b.total_params_num(); j++)
 				b.values[0][j-t] = flattenedParams.values[j][0];
-			biases.set(i, b);
+			biases.put(i, b);
 			t += b.total_params_num();
 		}
 	}
@@ -65,11 +65,11 @@ public class NeuralNetwork extends Model{ //Single Hidden Layer
 		
 		//Forward Propagation
 		Matrix h = data;
-		HashMap<Integer, Matrix> hidden_list = new HashMap<Integer, Matrix>();
+		HashMap<Integer, Matrix> hidden_list = new HashMap<Integer, Matrix>(); // Index Start from 0 (h_0 = data)
 		hidden_list.put(0, h); // View X as First Hidden Layer
-		for(int i = 0; i < weight_Matrices.size(); i++){ // #hidden = n  -> #weight_matrices = n+1,  #biases = n+1	
-			h = new Sigmoid().activate(hidden_list.get(i).multiply(weight_Matrices.get(i)).add(biases.get(i))); // h_i, W_i+1, b_i+1
-			hidden_list.put((i+1), h); // Save h_i+1
+		for(int i = 1; i <= weight_Matrices.size(); i++){ // #hidden = n  -> #weight_matrices = n+1,  #biases = n+1	
+			h = new Sigmoid().activate(hidden_list.get(i-1).multiply(weight_Matrices.get(i)).add(biases.get(i))); // h_i, W_i+1, b_i+1
+			hidden_list.put(i, h); // Save h_i+1
 		}
 		double cost = - label.element_multiply(h.log()).sum_all();
 		
@@ -79,17 +79,17 @@ public class NeuralNetwork extends Model{ //Single Hidden Layer
 		HashMap<Integer, Matrix> grad_b_list = new HashMap<Integer, Matrix>();
 		
 		int weight_matrix_num = weight_Matrices.size();
-		for(int i = weight_matrix_num; i >= 0; i--){
+		for(int i = weight_matrix_num; i >= 1; i--){
 			if(i == weight_matrix_num){ // i = n + 1				
 				Matrix grad_Z = label.element_multiply(h.subtract(new Matrix("1", h.row_num, h.col_num))); //h equals y in this point
 				grad_Z_list.put(i, grad_Z);
-				grad_W_list.put(i, hidden_list.get(i).T().multiply(grad_Z));
+				grad_W_list.put(i, hidden_list.get(i-1).T().multiply(grad_Z));
 				grad_b_list.put(i, grad_Z.sum(0));
 			}
 			else{
 				Matrix h_i = hidden_list.get(i);
 				Matrix h_i_prev = hidden_list.get(i-1);
-				Matrix grad_h = grad_Z_list.get(i+1).multiply(weight_Matrices.get(i));
+				Matrix grad_h = grad_Z_list.get(i+1).multiply(weight_Matrices.get(i+1).T());
 				Matrix grad_Z = grad_h.element_multiply(h_i).element_multiply(h_i.subtract(new Matrix("1", h_i.row_num, h_i.col_num))).multiply(-1);
 				Matrix grad_W = h_i_prev.T().multiply(grad_Z);
 				Matrix grad_b = grad_Z.sum(0);
@@ -101,7 +101,7 @@ public class NeuralNetwork extends Model{ //Single Hidden Layer
 		
 		//Stack Gradients
 		ArrayList<Matrix> grads = new ArrayList<Matrix>();
-		for(int i = 0; i < weight_matrix_num; i++){
+		for(int i = 1; i <= weight_matrix_num; i++){
 			grads.add(grad_W_list.get(i).flatten());
 			grads.add(grad_b_list.get(i).flatten());
 		}

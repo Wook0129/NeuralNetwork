@@ -9,7 +9,7 @@ public class TestMain {
 		Matrix data = new Matrix("R", 20, 10);
 		Matrix label = new Matrix("1",20,10);
 		NeuralNetwork nn = new NeuralNetwork();
-		nn.layer_Setting(new int[]{10, 5, 10});
+		nn.layer_Setting(new int[]{10, 5, 5, 5, 5 , 100 , 5 , 5 , 5 , 5, 10});
 		nn.train(data, label);
 	}
 }
