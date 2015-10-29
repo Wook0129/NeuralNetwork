@@ -13,7 +13,7 @@ public abstract class Model {
 	private Optimizer optMethod = new StochasticGradientDescent(); //Method to Optimize Model. Default method is SGD
 	
 	public abstract CostGrad cost_grad_at_givenParams(Matrix params) throws Exception;
-	//Input : Data, Label, Parameters
+	//Input : Parameters
 	//Output : 1)Cost of Objective Function and 2)Gradient of Parameters, at Given Parameters
 	
 	public void setData(Matrix data){

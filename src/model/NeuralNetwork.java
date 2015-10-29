@@ -121,9 +121,29 @@ public class NeuralNetwork extends Model{
 		int weight_matrix_num = weight_Matrices.size();
 		for(int i = weight_matrix_num; i >= 1; i--){
 			if(i == weight_matrix_num){ // i = n + 1
-				//FIXME : gradient of cost function * gradient of active function at Y
-//				Matrix grad_Z = new CrossEntropyCost().grad(y, super.getLabel()).element_multiply(new Sigmoid().grad(y));
-				Matrix grad_Z = super.getLabel().element_multiply(y.subtract(new Matrix("1", y.row_num, y.col_num)));
+				
+				String activation = h_layer_types.get(i);
+				Matrix z = hidden_input_list.get(weight_matrix_num);
+				Matrix grad_Z;
+				switch(activation){
+					case "sigmoid":
+						grad_Z = new Sigmoid().grad(z).element_multiply(new CrossEntropyCost().grad(y, super.getLabel())); 
+						break;
+					case "tanh":
+						grad_Z = new HyperTangent().grad(z).element_multiply(new CrossEntropyCost().grad(y, super.getLabel()));
+						break;
+					case "softmax":
+						grad_Z = new Softmax().grad(z).element_multiply(new CrossEntropyCost().grad(y, super.getLabel()));
+						break;
+					case "relu":
+						grad_Z = new ReLU().grad(z).element_multiply(new CrossEntropyCost().grad(y, super.getLabel()));
+						break;
+					case "none":
+						grad_Z = new CrossEntropyCost().grad(y, super.getLabel());
+						break;
+					default:
+						throw new Exception("Invalid Activation Function");
+				}	
 				grad_Z_list.put(i, grad_Z);
 				grad_W_list.put(i, hidden_list.get(i-1).T().multiply(grad_Z));
 				grad_b_list.put(i, grad_Z.sum(0));

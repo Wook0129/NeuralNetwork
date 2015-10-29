@@ -19,4 +19,5 @@ public interface CostFunction {
 			return grad_y;
 		}
 	}
+	
 }

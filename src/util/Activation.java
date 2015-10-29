@@ -52,14 +52,21 @@ public interface Activation {
 	public class ReLU implements Activation{
 		@Override
 		public Matrix activate(Matrix m) throws Exception {
-			// TODO Auto-generated method stub
-			return null;
+			Matrix result = new Matrix(m.row_num, m.col_num);
+			for(int i = 0; i< m.row_num; i++)
+				for(int j = 0; j< m.col_num; j++)
+					if(m.values[i][j] < 0) result.values[i][j] = 0;
+					else result.values[i][j] = m.values[i][j];
+			return result;
 		}
-
 		@Override
 		public Matrix grad(Matrix m) throws Exception {
-			// TODO Auto-generated method stub
-			return null;
+			Matrix result = new Matrix(m.row_num, m.col_num);
+			for(int i = 0; i< m.row_num; i++)
+				for(int j = 0; j< m.col_num; j++)
+					if(m.values[i][j] > 0) result.values[i][j] = 1;
+					else result.values[i][j] = 0;
+			return result;
 		}
 	}
 	
