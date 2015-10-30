@@ -5,15 +5,10 @@ import java.util.HashMap;
 
 import ds.CostGrad;
 import ds.Matrix;
-import util.Activation.HyperTangent;
-import util.Activation.ReLU;
-import util.Activation.Sigmoid;
-import util.Activation.Softmax;
-import util.CostFunction.CrossEntropyCost;
+import util.Activation.*;
 
 public class NeuralNetwork extends Model{
 
-	private int[] dimensions;
 	private HashMap<Integer, Matrix> weight_Matrices = new HashMap<Integer, Matrix>();
 	private HashMap<Integer, Matrix> biases = new HashMap<Integer, Matrix>();
 	private HashMap<Integer, String> h_layer_types = new HashMap<Integer, String>(); // Save name of Activation Functions for each Hidden Layer
@@ -23,7 +18,6 @@ public class NeuralNetwork extends Model{
 		
 		if(dimensions.length != layer_types.length + 1) throw new Exception("Error in Layer Setting");
 		
-		this.dimensions = dimensions;
 		int total_params_num = 0;
 		
 		for(int i = 0; i<dimensions.length - 1; i++){ // Allocate Memory for Weight matrices and Biases according to dimensions
@@ -34,22 +28,6 @@ public class NeuralNetwork extends Model{
 		for(int i = 0; i<layer_types.length; i++) h_layer_types.put((i+1), layer_types[i]);
 
 		super.setParams(new Matrix("R", total_params_num, 1)); //Random Initialization
-	}
-	
-	public void train(Matrix data, Matrix label) throws Exception{
-		
-		super.setData(data);
-		super.setLabel(label);
-		
-		if(dimensions == null || dimensions.length < 3) throw new Exception("Invalid Layer Setting");
-		
-		long start = System.currentTimeMillis();
-		Matrix optimal_params = super.getOptimizer().optimize(this, super.getData(), super.getLabel());
-		super.setParams(optimal_params);
-		long elapsed = System.currentTimeMillis() - start;
-		
-		System.out.println("Training "+this.getClass().getName()+" Finished...");
-		System.out.println("Elapsed Time : "+(elapsed/1000)+"s");
 	}
 	
 	private void unpack_Params(HashMap<Integer, Matrix> weight_Matrices, HashMap<Integer, Matrix> biases, Matrix flattenedParams){
@@ -111,7 +89,8 @@ public class NeuralNetwork extends Model{
 			hidden_list.put(i, h); // Save h_i+1
 		}
 		Matrix y = h; //h equals y at this point
-		double cost = new CrossEntropyCost().cost(y, super.getLabel());
+		double cost = super.getCostFunction().cost(y, super.getLabel());
+		Matrix grad_y = super.getCostFunction().grad(y, super.getLabel());
 		
 		//Backward Propagation
 		HashMap<Integer, Matrix> grad_Z_list = new HashMap<Integer, Matrix>();
@@ -127,19 +106,19 @@ public class NeuralNetwork extends Model{
 				Matrix grad_Z;
 				switch(activation){
 					case "sigmoid":
-						grad_Z = new Sigmoid().grad(z).element_multiply(new CrossEntropyCost().grad(y, super.getLabel())); 
+						grad_Z = new Sigmoid().grad(z).element_multiply(grad_y); 
 						break;
 					case "tanh":
-						grad_Z = new HyperTangent().grad(z).element_multiply(new CrossEntropyCost().grad(y, super.getLabel()));
+						grad_Z = new HyperTangent().grad(z).element_multiply(grad_y);
 						break;
 					case "softmax":
-						grad_Z = new Softmax().grad(z).element_multiply(new CrossEntropyCost().grad(y, super.getLabel()));
+						grad_Z = new Softmax().grad(z).element_multiply(grad_y);
 						break;
 					case "relu":
-						grad_Z = new ReLU().grad(z).element_multiply(new CrossEntropyCost().grad(y, super.getLabel()));
+						grad_Z = new ReLU().grad(z).element_multiply(grad_y);
 						break;
 					case "none":
-						grad_Z = new CrossEntropyCost().grad(y, super.getLabel());
+						grad_Z = grad_y;
 						break;
 					default:
 						throw new Exception("Invalid Activation Function");

@@ -106,13 +106,13 @@ public class Matrix {
 		return result;
 	}
 	
-	public Matrix element_divide(Matrix m) throws Exception{ //FIXME: Exception may occur...
+	public Matrix element_divide(Matrix m) throws Exception{ 
 		Matrix result = new Matrix(this.row_num, this.col_num);
 		if(this.row_num == m.row_num && this.col_num == m.col_num)
 			for(int i = 0; i<row_num; i++)
 				for(int j = 0; j<col_num; j++)
 					if(m.values[i][j] != 0) result.values[i][j] = this.values[i][j] / m.values[i][j];
-					else result.values[i][j] = 0;
+					else result.values[i][j] = 0; //FIXME: Exception or Wrong Result may occur...
 		else throw new Exception("Infeasible Operation");
 		return result;
 	}
