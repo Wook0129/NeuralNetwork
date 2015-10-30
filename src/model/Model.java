@@ -1,5 +1,7 @@
 package model;
 
+import java.util.HashMap;
+
 import ds.CostGrad;
 import ds.Matrix;
 import util.Configuration;
@@ -12,7 +14,7 @@ public abstract class Model {
 	private Matrix params; //Parameters Of Model, Saved as Flatten Format
 	private Configuration config = new Configuration(); //Optimization Method & Cost Function
 	
-	public abstract CostGrad cost_grad_at_givenParams(Matrix params) throws Exception;
+	public abstract CostGrad cost_grad_at_givenParams(Matrix flattenedparams) throws Exception;
 	//Input : Parameters
 	//Output : 1)Cost of Objective Function and 2)Gradient of Parameters, at Given Parameters
 	
@@ -31,13 +33,18 @@ public abstract class Model {
 		System.out.println("Elapsed Time : "+(elapsed/1000)+"s");
 	}
 	
-	protected void setData(Matrix data){
+	@SuppressWarnings("rawtypes")
+	protected abstract HashMap[] getTrainedParams();
+	
+	public abstract Matrix predict(Matrix testData) throws Exception;
+	
+	public void setData(Matrix data){
 		this.data = data;
 	}
 	protected Matrix getData(){
 		return data;
 	}
-	protected void setLabel(Matrix label){
+	public void setLabel(Matrix label){
 		this.label = label;
 	}
 	protected Matrix getLabel(){

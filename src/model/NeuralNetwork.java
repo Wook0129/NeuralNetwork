@@ -30,7 +30,7 @@ public class NeuralNetwork extends Model{
 		super.setParams(new Matrix("R", total_params_num, 1)); //Random Initialization
 	}
 	
-	private void unpack_Params(HashMap<Integer, Matrix> weight_Matrices, HashMap<Integer, Matrix> biases, Matrix flattenedParams){
+	private void unpack_Params(Matrix flattenedParams){
 		//Unpack Flatten Parameters to Weight Matrices and Biases According to their Dimensions
 		int t = 0;
 		for(int i = 1; i<=weight_Matrices.size(); i++){
@@ -174,7 +174,48 @@ public class NeuralNetwork extends Model{
 
 	@Override
 	public CostGrad cost_grad_at_givenParams(Matrix flattenedParams) throws Exception{
-		unpack_Params(weight_Matrices, biases, flattenedParams);
+		unpack_Params(flattenedParams);
 		return forward_backward_Propagation();
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public HashMap[] getTrainedParams() {
+		return new HashMap[]{weight_Matrices, biases};
+	}
+
+	@Override
+	public Matrix predict(Matrix testData) throws Exception {
+		//Forward Propagation
+		Matrix h = testData;
+		HashMap<Integer, Matrix> hidden_list = new HashMap<Integer, Matrix>(); // Index Start from 0 (h_0 = data, h_n+1 = y)
+		hidden_list.put(0, h); // View X as First Hidden Layer
+		for(int i = 1; i <= weight_Matrices.size(); i++){ // If #hidden = n then #weight_matrices = #biases = n+1	
+
+			Matrix z = hidden_list.get(i-1).multiply(weight_Matrices.get(i)).add(biases.get(i)); // h_i, W_i+1, b_i+1
+			//Activation by Functions
+			String activation = h_layer_types.get(i);
+			switch(activation){
+				case "sigmoid":
+					h = new Sigmoid().activate(z); 
+					break;
+				case "tanh":
+					h = new HyperTangent().activate(z);
+					break;
+				case "softmax":
+					h = new Softmax().activate(z);
+					break;
+				case "relu":
+					h = new ReLU().activate(z);
+					break;
+				case "none":
+					h = z;
+					break;
+				default:
+					throw new Exception("Invalid Activation Function");
+			}			
+			hidden_list.put(i, h); // Save h_i+1
+		}
+		return h; //h equals y at this point
 	}
 }

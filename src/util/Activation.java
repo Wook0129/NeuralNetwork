@@ -23,9 +23,15 @@ public interface Activation {
 	
 	public class Softmax implements Activation{
 		@Override
-		public Matrix activate(Matrix m) throws Exception {
-			Matrix e = (m.subtract(m.max(1))).exp();
-			return e.divide(e.sum(1));
+		public Matrix activate(Matrix m) throws Exception {			
+			if(m.col_num == 1){
+				Matrix e = m.subtract(m.max(0)).exp();
+				return e.divide(e.sum(0));
+			}
+			else{
+				Matrix e = (m.subtract(m.max(1))).exp();
+				return e.divide(e.sum(1));
+			}
 		}
 
 		@Override
