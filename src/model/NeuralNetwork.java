@@ -183,7 +183,34 @@ public class NeuralNetwork extends Model{
 	public HashMap[] getTrainedParams() {
 		return new HashMap[]{weight_Matrices, biases};
 	}
-
+	
+	@Override
+	public void setParams(Matrix params){
+		super.setParams(params);
+		
+		int t = 0;
+		
+		for(int i = 1; i <= weight_Matrices.size(); i++){
+			//Update Weight Matrix
+			int[] dim = weight_Matrices.get(i).dim();
+			int numValues = dim[0] * dim[1];
+			Matrix w = new Matrix(numValues, 1);
+			for(int j = t; j < t + numValues; j++)
+				w.values[j-t][0] = params.values[j][0];
+			t += numValues;
+			weight_Matrices.put(i, w.reshape(dim[0], dim[1]));
+			
+			//Update Bias
+			dim = biases.get(i).dim();
+			numValues = dim[0] * dim[1];
+			Matrix b = new Matrix(numValues, 1);
+			for(int j = t; j < t + numValues; j++)
+				b.values[j-t][0] = params.values[j][0];
+			t += numValues;
+			biases.put(i, b.reshape(dim[0], dim[1]));
+		}		
+	}
+	
 	@Override
 	public Matrix predict(Matrix testData) throws Exception {
 		//Forward Propagation

@@ -1,6 +1,7 @@
 package util;
 
 import util.CostFunction.CrossEntropyCost;
+import util.CostFunction.SquareLoss;
 import util.Optimizer.GradientDescent;
 import util.Optimizer.OptMethod;
 
@@ -32,6 +33,9 @@ public class Configuration {
 		switch(function){
 			case "CrossEntropy":
 				this.costFunction = new CrossEntropyCost();
+				break;
+			case "SquareLoss":
+				this.costFunction = new SquareLoss();
 				break;
 			default :
 				throw new Exception("No Such Cost Function");
